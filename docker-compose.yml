@@ -1,0 +1,51 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  dotnet-test:
+    container_name: dotnet-test
+    image: mcr.microsoft.com/dotnet/samples:aspnetapp
+    restart: always
+    ports:
+      - 8080:80
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.36.2
+    restart: always
+    volumes:
+      - /root/docker/dockerdata/prometheus:/etc/prometheus
+    ports:
+      - 8083:9090
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:8.2.6
+    restart: always
+    volumes:
+      - /root/docker/dockerdata/grafana:/var/lib/grafana
+    ports:
+      - 8081:3000
+
+  nodered:
+    container_name: nodered
+    image: nodered/node-red:2.2.2
+    restart: always
+    volumes:
+      - /root/docker/dockerdata/nodered:/data
+    ports:
+      - 8082:1880
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:v1.3.1
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - 9100:9100
